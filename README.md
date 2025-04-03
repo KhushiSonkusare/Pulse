@@ -26,7 +26,7 @@ This project is a platform for registering intellectual property (IP) on the blo
 1.  **Clone the repository:**
 
     ```bash
-    git clone [https://github.com/KhushiSonkusare/Pulse.git](https://github.com/KhushiSonkusare/Pulse.git)
+    git clone https://github.com/KhushiSonkusare/Pulse.git
     cd Pulse
     ```
 
