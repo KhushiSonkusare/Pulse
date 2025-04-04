@@ -62,10 +62,7 @@ export default function CountdownPage() {
   
   return (
     <div className={styles.container}>
-      <div className={styles.backgroundGraphics}>
-        <div className={styles.circle1}></div>
-        <div className={styles.circle2}></div>
-      </div>
+      
       
       <div className={styles.content}>
         {/* Left side - Record */}
@@ -82,10 +79,10 @@ export default function CountdownPage() {
           </div>
           <div className={styles.vinylWrapper}>
             <Image 
-              src="/images/record.png" 
+              src="/images/records.png" 
               alt="Vinyl record" 
-              width={800} 
-              height={800}
+              width={565} 
+              height={565}
               className={styles.vinylImage}
               priority 
             />
@@ -149,11 +146,9 @@ export default function CountdownPage() {
               </div>
             </div>
             
-            <div className={styles.releaseInfo}>
-              <p>TITLE: ABC QWRT</p>
-              <p>ARTISTS: WEEKEND, DAFT PUNK</p>
+          
               <button className={styles.notifyButton}>GET NOTIFIED</button>
-            </div>
+          
             
             {/* Social share buttons removed as requested */}
           </div>
