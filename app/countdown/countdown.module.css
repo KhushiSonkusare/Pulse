@@ -1,0 +1,428 @@
+.container {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+    overflow: hidden;
+    position: relative;
+  }
+    
+  .content {
+    width: 100%;
+    height: 100vh;
+    max-width: 1200px;
+    display: flex;
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* Background graphics */
+  .backgroundGraphics {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 0;
+  }
+  
+  .circle1 {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, rgba(255, 102, 0, 0.1), rgba(255, 0, 0, 0.05));
+    top: -100px;
+    left: -100px;
+    filter: blur(50px);
+  }
+  
+  .circle2 {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(0, 102, 255, 0.05), rgba(128, 0, 255, 0.1));
+    bottom: -200px;
+    right: -200px;
+    filter: blur(60px);
+  }
+    
+  /* Record section styles */
+  .recordSection {
+    position: relative;
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+    
+  .stylusWrapper {
+    position: absolute;
+    top: 0; /* Stylus starts from very top */
+    left: -50px;
+    z-index: 10;
+  }
+    
+  .stylusImage {
+    width: auto;
+    height: auto;
+    transform: rotate(-15deg);
+  }
+    
+  .vinylWrapper {
+    position: relative;
+    margin-right: -100px; /* Push record to the right */
+  }
+    
+  .vinylImage {
+    animation: rotateRecord 20s linear infinite;
+  }
+    
+  @keyframes rotateRecord {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+    
+  /* Overlay rectangle */
+  .overlayRect {
+    width: 60%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center content vertically */
+    margin-left: -200px;
+    border-left: 1px solid rgba(255, 255, 255, 0.7);
+    overflow-y: auto;
+  }
+  
+  /* Content wrapper for better spacing */
+  .contentWrapper {
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center content horizontally */
+    justify-content: center; /* Center content vertically */
+    height: 100%; /* Take full height */
+    gap: 50px; /* Increased gap between sections */
+  }
+    
+  /* Countdown section */
+  .countdownSection {
+    width: 100%;
+    z-index: 2;
+    position: relative;
+    text-align: center; /* Center text content */
+  }
+    
+  .releaseText {
+    font-size: 2rem; /* Increased font size */
+    font-weight: 400;
+    margin-bottom: 40px; /* Increased bottom margin */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: "Inter", sans-serif;
+  }
+    
+  .newMusic {
+    color: #ff6600;
+    font-weight: 700;
+    margin-right: 10px;
+  }
+    
+  .countdown {
+    display: flex;
+    justify-content: center; /* Center the countdown units */
+    gap: 40px; /* Increased gap between time units */
+    margin: 40px 0; /* Increased vertical margins */
+  }
+    
+  .timeUnit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 120px; /* Increased minimum width */
+  }
+    
+  .numberWrapper {
+    height: 120px; /* Increased height */
+    overflow: hidden;
+    position: relative;
+  }
+    
+  .number {
+    position: relative;
+    width: 120px; /* Increased width */
+    height: 120px; /* Increased height */
+    font-family: "Inter", sans-serif;
+  }
+  
+  .numberCurrent, .numberNext {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 7rem; /* Increased font size */
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    font-family: "Inter", sans-serif;
+  }
+  
+  .numberNext {
+    transform: translateY(-100%);
+  }
+  
+  .slideAnimation {
+    animation: slideDown 0.7s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+  }
+  
+  @keyframes slideDown {
+    0% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(50%);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+    
+  .label {
+    font-size: 1.2rem; /* Increased font size */
+    margin-top: 15px; /* Increased top margin */
+    opacity: 0.8;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: "Inter", sans-serif;
+  }
+    
+  /* Pulsing dot animation */
+  .pulsingDot {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+  }
+    
+  .dot {
+    position: absolute;
+    top: 2%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    background-color: #ff6600;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+    
+  .ripple {
+    position: absolute;
+    top: 2%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    border: 2px solid #ff6600;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: ripple 2s linear infinite;
+  }
+    
+  @keyframes ripple {
+    0% {
+      width: 10px;
+      height: 10px;
+      opacity: 1;
+    }
+    100% {
+      width: 40px;
+      height: 40px;
+      opacity: 0;
+    }
+  }
+    
+  /* Release info */
+  .releaseInfo {
+    text-align: center; /* Center release info */
+    font-size: 1.1rem; /* Increased font size */
+    line-height: 1.8; /* Increased line height */
+    letter-spacing: 1px;
+  }
+    
+  /* Notification button - Updated with white border */
+  .notifyButton {
+    color: white;
+    background-color: transparent;
+    border: 2px solid white; /* Added white border */
+    padding: 12px 24px; /* Increased padding */
+    margin-top: 20px; /* Increased top margin */
+    font-size: 1rem; /* Increased font size */
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+    font-family: "Inter", sans-serif;
+  }
+    
+  .notifyButton:hover {
+    background-color: #ff8533;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(255, 102, 0, 0.3);
+  }
+  
+  /* Social share styles removed as requested */
+    
+  /* Responsive styles */
+  @media (max-width: 1024px) {
+    .overlayRect {
+      margin-left: -150px;
+    }
+      
+    .vinylImage {
+      width: 600px;
+      height: 600px;
+    }
+      
+    .numberWrapper {
+      height: 100px; /* Adjusted for medium screens */
+    }
+      
+    .numberCurrent, .numberNext {
+      font-size: 6rem; /* Adjusted for medium screens */
+      width: 100px;
+      height: 100px;
+    }
+    
+    .contentWrapper {
+      padding: 40px;
+      gap: 40px;
+    }
+    
+    .countdown {
+      gap: 30px; /* Adjusted spacing for medium screens */
+    }
+  }
+    
+  @media (max-width: 768px) {
+    .content {
+      flex-direction: column;
+    }
+      
+    .recordSection {
+      width: 100%;
+      justify-content: center;
+      height: 40vh;
+    }
+      
+    .stylusWrapper {
+      left: 10%;
+      top: 0;
+    }
+      
+    .stylusImage {
+      width: 150px;
+      height: auto;
+    }
+      
+    .vinylWrapper {
+      margin-right: 0;
+    }
+      
+    .vinylImage {
+      width: 300px;
+      height: 300px;
+    }
+      
+    .overlayRect {
+      width: 100%;
+      height: 60vh;
+      margin-left: 0;
+      border-left: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.7);
+    }
+      
+    .countdown {
+      justify-content: space-around;
+      gap: 20px; /* Adjusted spacing for smaller screens */
+    }
+      
+    .timeUnit {
+      min-width: 80px; /* Adjusted for tablets */
+    }
+      
+    .numberWrapper {
+      height: 80px; /* Adjusted for tablets */
+    }
+      
+    .numberCurrent, .numberNext {
+      font-size: 4.5rem; /* Adjusted for tablets */
+      width: 80px;
+      height: 80px;
+    }
+    
+    .contentWrapper {
+      padding: 30px;
+      gap: 30px;
+    }
+    
+    .label {
+      font-size: 1rem; /* Adjusted for tablets */
+    }
+  }
+    
+  @media (max-width: 480px) {
+    .vinylImage {
+      width: 220px;
+      height: 220px;
+    }
+      
+    .releaseText {
+      font-size: 1.4rem; /* Adjusted for mobile */
+    }
+      
+    .numberWrapper {
+      height: 60px; /* Adjusted for mobile */
+    }
+      
+    .numberCurrent, .numberNext {
+      font-size: 3rem; /* Adjusted for mobile */
+      width: 60px;
+      height: 60px;
+    }
+      
+    .timeUnit {
+      min-width: 60px; /* Adjusted for mobile */
+    }
+      
+    .label {
+      font-size: 0.9rem; /* Adjusted for mobile */
+    }
+      
+    .notifyButton {
+      padding: 10px 20px;
+      font-size: 0.9rem;
+    }
+    
+    .contentWrapper {
+      padding: 20px;
+      gap: 25px;
+    }
+    
+    .countdown {
+      gap: 15px; /* Reduced spacing for mobile screens */
+    }
+  }

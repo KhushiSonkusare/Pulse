@@ -16,6 +16,7 @@ import {
   Plus,
   Menu,
   X,
+  Wallet,
 } from "lucide-react";
 import Link from "next/link";
 // Sidebar Item Component
@@ -37,6 +38,7 @@ function SidebarItem({ icon, label, active = false }: SidebarItemProps) {
 export default function Dashboard() {
   const [mounted, setMounted] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [walletConnected, setWalletConnected] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -56,6 +58,10 @@ export default function Dashboard() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [sidebarOpen]);
+
+  const handleConnectWallet = () => {
+    setWalletConnected(!walletConnected);
+  };
 
   if (!mounted) {
     return null;
@@ -108,12 +114,36 @@ export default function Dashboard() {
           <SidebarItem icon={<Settings />} label="Settings" />
           <SidebarItem icon={<HelpCircle />} label="Help" />
         </div>
+        
+        {/* Connect Wallet Button in Sidebar */}
+        <div className="mt-auto pt-6">
+          <button 
+            onClick={handleConnectWallet}
+            className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-all duration-300 ${
+              walletConnected ? 'bg-green-600' : 'bg-[#fa5f02]'
+            }`}
+          >
+            <Wallet className="w-5 h-5" />
+            <span>{walletConnected ? 'Wallet Connected' : 'Connect Wallet'}</span>
+          </button>
+        </div>
       </div>
 
       {/* Main Content - Properly adjust margins to avoid content being hidden */}
       <div className="flex-1 lg:ml-64 lg:mr-96 p-4 md:p-8 mt-12 lg:mt-0 overflow-x-hidden">
-        <div className="mb-8">
+        <div className="mb-8 flex justify-between items-center">
           <h1 className="text-3xl font-medium">Hello, Michael!</h1>
+          
+          {/* Connect Wallet Button in Header for Mobile/Medium screens */}
+          <button 
+            onClick={handleConnectWallet}
+            className={`md:hidden flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all duration-300 ${
+              walletConnected ? 'bg-green-600' : 'bg-[#fa5f02]'
+            }`}
+          >
+            <Wallet className="w-4 h-4" />
+            <span>{walletConnected ? 'Connected' : 'Connect Wallet'}</span>
+          </button>
         </div>
 
         {/* Featured Content */}
@@ -147,10 +177,9 @@ export default function Dashboard() {
 
         {/* Register IP button below featured section in responsive mode */}
         <div className="lg:hidden w-full mb-10">
-        <Link href="/register">
-  <button className="px-8 py-3 font-medium rounded-full bg-[#fb9a28] text-black w-full">Register IP</button>
-</Link>
-
+          <Link href="/register">
+            <button className="px-8 py-3 font-medium rounded-full bg-[#fb9a28] text-black w-full">Register IP</button>
+          </Link>
         </div>
 
         {/* Stats Cards */}
@@ -191,11 +220,17 @@ export default function Dashboard() {
 
       {/* Right Sidebar (Fixed on large screens, below content on small) */}
       <div className="hidden lg:block w-96 p-6 border-l border-[#333333] fixed right-0 top-0 h-screen overflow-y-auto">
-      <Link href="/register">
-  <button className="px-8 py-3 font-medium rounded-full bg-[#fb9a28] text-black mb-6">
-    Register IP
-  </button>
-</Link>
+        <div className="flex flex-col gap-4 mb-6">
+          <Link href="/register">
+            <button className="px-8 py-3 font-medium rounded-full bg-[#fb9a28] text-black w-full">
+              Register IP
+            </button>
+          </Link>
+          
+          {/* Connect Wallet Button for desktop */}
+          
+        </div>
+        
         <h3 className="text-lg font-medium mb-4">Latest Album</h3>
         <TrackItem number="00" title="Random Access Memories" artist="Daft Punk" image="/images/m1.png" isPlaying />
         <TrackItem number="01" title="Glow On" artist="Turnstile" image="/images/m2.png" />
