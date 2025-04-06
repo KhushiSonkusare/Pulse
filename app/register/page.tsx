@@ -15,13 +15,14 @@ import {
   SPGNFTContractAddress,
   account
 } from '../../utils';
-// Ensure this path is correct
+
 
 interface FormData {
   title: string;
   description: string;
   date: string;
   rights: string;
+  coverImage: File[]; 
   files: File[];
 }
 
@@ -269,6 +270,115 @@ function FileUploadField({ number, label, formData, setFormData }: FileUploadFie
   );
 }
 
+// Cover Image Upload Component
+interface CoverImageUploadFieldProps {
+  number: string;
+  label: string;
+  formData: FormData;
+  setFormData: React.Dispatch<React.SetStateAction<FormData>>;
+}
+
+function CoverImageUploadField({ number, label, formData, setFormData }: CoverImageUploadFieldProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = e.target.files;
+    if (!selectedFiles || selectedFiles.length === 0) return;
+    
+    // Get the first file only
+    const file = selectedFiles[0];
+    
+    // Check if file is an image
+    if (!file.type.startsWith("image/")) {
+      alert("Only image files are allowed");
+      // Reset the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      return;
+    }
+    
+    // Update form data with single file in array
+    setFormData(prev => ({ ...prev, coverImage: [file] }));
+  };
+
+  const removeFile = () => {
+    setFormData(prev => ({ ...prev, coverImage: [] }));
+    // Reset the file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  // Format file size
+  const formatFileSize = (size: number): string => {
+    if (size < 1024) return size + ' bytes';
+    else if (size < 1024 * 1024) return (size / 1024).toFixed(1) + ' KB';
+    else return (size / (1024 * 1024)).toFixed(1) + ' MB';
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
+        <div className="w-6 h-6 bg-[#222] text-center text-sm flex items-center justify-center rounded-sm">{number}</div>
+        <label className="text-sm font-medium">{label}</label>
+      </div>
+      
+      {formData.coverImage.length === 0 ? (
+        <div 
+          className="border-2 border-dashed border-[#333] rounded-md p-8 flex flex-col items-center justify-center text-center bg-[#0d0d0d] hover:border-[#fa5f02] transition-colors cursor-pointer"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <Upload className="w-12 h-12 text-[#666] mb-3" />
+          <p className="text-sm font-medium mb-1">Upload cover image</p>
+          <p className="text-xs text-gray-500">Click to browse or drag and drop</p>
+          <p className="text-xs text-gray-500 mt-3">JPG, PNG or GIF accepted</p>
+          
+          <input 
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+            accept="image/*"
+          />
+        </div>
+      ) : (
+        <div className="border border-[#333] rounded-md bg-[#121212] p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-[#1a1a1a] rounded-md flex items-center justify-center text-[#fa5f02] overflow-hidden">
+                <img 
+                  src={URL.createObjectURL(formData.coverImage[0])} 
+                  alt="Preview" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{formData.coverImage[0].name}</p>
+                <p className="text-xs text-gray-500">{formatFileSize(formData.coverImage[0].size)}</p>
+              </div>
+            </div>
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                removeFile();
+              }}
+              className="w-8 h-8 rounded-full bg-[#222] flex items-center justify-center hover:bg-[#333] transition-colors"
+            >
+              <X className="w-4 h-4 text-gray-400" />
+            </button>
+          </div>
+        </div>
+      )}
+      
+      <div className="text-xs text-gray-500 flex items-center gap-2 mt-1">
+        <span className="inline-block w-1 h-1 bg-[#fa5f02] rounded-full"></span>
+        <span>Add an album or song cover image</span>
+      </div>
+    </div>
+  );
+}
+
 export default function RegisterIP() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
@@ -285,6 +395,7 @@ export default function RegisterIP() {
     description: "",
     date: "",
     rights: "",
+    coverImage: [], 
     files: [],
   });
 
@@ -356,10 +467,14 @@ export default function RegisterIP() {
     if (formData.date) filledCount++;
     if (formData.rights) filledCount++;
     if (formData.files.length > 0) filledCount++;
+    if (formData.coverImage.length > 0) filledCount++;
+    
     
     setProgress((filledCount / 5) * 100);
   }
 }, [formData]);
+
+  const isFormValid = formData.title && formData.description && formData.date && formData.rights && formData.coverImage.length > 0 && formData.files.length > 0; 
 
   const handleClickOutside = (e: MouseEvent) => {
     if (isMobileMenuOpen && e.target instanceof HTMLElement) {
@@ -427,9 +542,10 @@ export default function RegisterIP() {
       }
 
       // Generate thumbnail for the video
-      const thumbnailUrl = await generateThumbnail(formData.files[0]);
+      // const thumbnailUrl = await generateThumbnail(formData.files[0]);
       const mediaUrl = await fileToBase64(formData.files[0]);
       const timestamp = Math.floor(Date.now() / 1000).toString();
+      const thumbnailUrl = formData.coverImage.length > 0 ? await fileToBase64(formData.coverImage[0]) : "";
 
       // Calculate hash for video content
       const mediaHash = createHash('sha256').update(mediaUrl).digest('hex');
@@ -673,8 +789,14 @@ export default function RegisterIP() {
               setFormData={setFormData} 
               field="rights" 
             />
-            <FileUploadField 
+            <CoverImageUploadField 
               number="5" 
+              label="Upload Cover Image" 
+              formData={formData} 
+              setFormData={setFormData} 
+            />            
+            <FileUploadField 
+              number="6" 
               label="Upload MP4 File" 
               formData={formData} 
               setFormData={setFormData} 
