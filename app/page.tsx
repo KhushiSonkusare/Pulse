@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+
 import {
   Search,
   Home,
@@ -20,6 +21,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 // Sidebar Item Component
+import { WalletConnect } from "@/components/walletConnect";
+
 interface SidebarItemProps {
   icon: React.ReactNode;
   label: string;
@@ -38,7 +41,7 @@ function SidebarItem({ icon, label, active = false }: SidebarItemProps) {
 export default function Dashboard() {
   const [mounted, setMounted] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [walletConnected, setWalletConnected] = useState(false);
+
 
   useEffect(() => {
     setMounted(true);
@@ -59,13 +62,6 @@ export default function Dashboard() {
     };
   }, [sidebarOpen]);
 
-  const handleConnectWallet = () => {
-    setWalletConnected(!walletConnected);
-  };
-
-  if (!mounted) {
-    return null;
-  }
 
   return (
     <div className="flex flex-col lg:flex-row bg-black text-white min-h-screen">
@@ -117,15 +113,10 @@ export default function Dashboard() {
         
         {/* Connect Wallet Button in Sidebar */}
         <div className="mt-auto pt-6">
-          <button 
-            onClick={handleConnectWallet}
-            className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-all duration-300 ${
-              walletConnected ? 'bg-green-600' : 'bg-[#fa5f02]'
-            }`}
-          >
-            <Wallet className="w-5 h-5" />
-            <span>{walletConnected ? 'Wallet Connected' : 'Connect Wallet'}</span>
-          </button>
+          <div className="md:hidden">
+            <WalletConnect />
+          </div>
+
         </div>
       </div>
 
@@ -135,15 +126,11 @@ export default function Dashboard() {
           <h1 className="text-3xl font-medium">Hello, Michael!</h1>
           
           {/* Connect Wallet Button in Header for Mobile/Medium screens */}
-          <button 
-            onClick={handleConnectWallet}
-            className={`md:hidden flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all duration-300 ${
-              walletConnected ? 'bg-green-600' : 'bg-[#fa5f02]'
-            }`}
-          >
-            <Wallet className="w-4 h-4" />
-            <span>{walletConnected ? 'Connected' : 'Connect Wallet'}</span>
-          </button>
+          {/* WalletConnect Button (Reusable + Styled) */}
+          <div className="mt-auto pt-6">
+            <WalletConnect />
+          </div>          
+
         </div>
 
         {/* Featured Content */}

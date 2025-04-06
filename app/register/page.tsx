@@ -8,6 +8,14 @@ import {
   Search, Home, FileText, FileKey, Users, BarChart2, Shield, Settings, HelpCircle, Calendar, Upload, Menu, X, Video
 } from "lucide-react";
 import Link from "next/link";
+import { createHash } from 'crypto';
+import lighthouse from '@lighthouse-web3/sdk';
+import { 
+  client, 
+  SPGNFTContractAddress,
+  account
+} from '../../utils';
+// Ensure this path is correct
 
 interface FormData {
   title: string;
@@ -269,6 +277,8 @@ export default function RegisterIP() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const [formData, setFormData] = useState<FormData>({
     title: "",
@@ -334,7 +344,10 @@ export default function RegisterIP() {
     };
   }, []);
 
+  // Fix in RegisterIP component - Replace the useEffect that sets mounted
   useEffect(() => {
+  // Only run on client side
+  if (typeof window !== 'undefined') {
     setMounted(true);
     
     let filledCount = 0;
@@ -345,7 +358,8 @@ export default function RegisterIP() {
     if (formData.files.length > 0) filledCount++;
     
     setProgress((filledCount / 5) * 100);
-  }, [formData]);
+  }
+}, [formData]);
 
   const handleClickOutside = (e: MouseEvent) => {
     if (isMobileMenuOpen && e.target instanceof HTMLElement) {
@@ -364,35 +378,156 @@ export default function RegisterIP() {
 
   if (!mounted) return null;
 
-  const handleSubmit = () => {
+  // Function to convert File to Base64
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
 
+  // Function to get image dimensions
+  const getImageDimensions = (file: File): Promise<{width: number, height: number}> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        resolve({
+          width: img.width,
+          height: img.height
+        });
+      };
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const generateThumbnail = async (videoFile: File): Promise<string> => {
+    // For demonstration purposes, we'll use a placeholder image
+    // In a real implementation, you would extract a frame from the video
+    return "https://via.placeholder.com/400x300";
+  };
+
+  const handleSubmit = async () => {
     const isFormValid = formData.title && formData.description && formData.date && formData.rights && formData.files.length > 0;
     if (!isFormValid) {
-        alert("Please fill all required fields.");
-        return;
+      alert("Please fill all required fields.");
+      return;
     }
 
-    setIsSubmitting(true);
-    
-    const formDataForExport = {
-      title: formData.title,
-      description: formData.description,
-      date: formData.date,
-      rights: formData.rights,
-      file: formData.files.length > 0 ? {
-        name: formData.files[0].name,
-        type: formData.files[0].type,
-        size: formData.files[0].size,
-        lastModified: formData.files[0].lastModified
-      } : null
-    };
-    
-    console.log("Form Data JSON:", JSON.stringify(formDataForExport, null, 2));
-    
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      setIsSubmitting(true);
+      setStatusMessage("Preparing metadata...");
+      setErrorMessage("");
+
+      // Get Lighthouse storage key
+      const LIGHTHOUSE_STORAGE_KEY = process.env.NEXT_PUBLIC_LIGHTHOUSE_STORAGE_KEY;
+      if (!LIGHTHOUSE_STORAGE_KEY) {
+        throw new Error("LIGHTHOUSE_STORAGE_KEY is missing from environment variables.");
+      }
+
+      // Generate thumbnail for the video
+      const thumbnailUrl = await generateThumbnail(formData.files[0]);
+      const mediaUrl = await fileToBase64(formData.files[0]);
+      const timestamp = Math.floor(Date.now() / 1000).toString();
+
+      // Calculate hash for video content
+      const mediaHash = createHash('sha256').update(mediaUrl).digest('hex');
+
+      // 1. Set up IP Metadata
+      setStatusMessage("Creating IP metadata...");
+      const ipMetadata = {
+        title: formData.title,
+        description: formData.description,
+        createdAt: timestamp,
+        creators: [
+          {
+            name: account.address, // Using the account address as name for now
+            address: account.address,
+            contributionPercent: 100,
+          },
+        ],
+        image: thumbnailUrl,
+        imageHash: `0x${createHash('sha256').update(thumbnailUrl).digest('hex')}`,
+        mediaUrl: mediaUrl,
+        mediaHash: `0x${mediaHash}`,
+        mediaType: formData.files[0].type,
+      };
+
+      // 2. Set up NFT Metadata
+      setStatusMessage("Creating NFT metadata...");
+      const nftMetadata = {
+        name: formData.title,
+        description: formData.description,
+        image: thumbnailUrl,
+        media: [
+          {
+            name: formData.files[0].name,
+            url: mediaUrl,
+            mimeType: formData.files[0].type,
+          },
+        ],
+        attributes: [
+          {
+            key: "Rights",
+            value: formData.rights,
+          },
+          {
+            key: "Created",
+            value: formData.date,
+          },
+          {
+            key: "Source",
+            value: "IP Register",
+          },
+        ],
+      };
+
+      // 3. Upload to Lighthouse Storage
+      setStatusMessage("Uploading metadata to Lighthouse Storage...");
+      const ipIpfsHash = await lighthouse.uploadText(
+        JSON.stringify(ipMetadata), 
+        LIGHTHOUSE_STORAGE_KEY, 
+        ipMetadata.title
+      );
+      const ipHash = createHash('sha256').update(JSON.stringify(ipMetadata)).digest('hex');
+      
+      const nftIpfsHash = await lighthouse.uploadText(
+        JSON.stringify(nftMetadata), 
+        LIGHTHOUSE_STORAGE_KEY, 
+        nftMetadata.name
+      );
+      const nftHash = createHash('sha256').update(JSON.stringify(nftMetadata)).digest('hex');
+
+      // 4. Register the NFT as an IP Asset
+      setStatusMessage("Registering with Story Protocol...");
+      const response = await client.ipAsset.mintAndRegisterIp({
+        spgNftContract: SPGNFTContractAddress,
+        allowDuplicates: true,
+        ipMetadata: {
+          ipMetadataURI: `https://gateway.lighthouse.storage/ipfs/${ipIpfsHash.data.Hash}`,
+          ipMetadataHash: `0x${ipHash}`,
+          nftMetadataURI: `https://gateway.lighthouse.storage/ipfs/${nftIpfsHash.data.Hash}`,
+          nftMetadataHash: `0x${nftHash}`,
+        },
+        txOptions: { waitForTransaction: true },
+      });
+
+      console.log(`Root IPA created at transaction hash ${response.txHash}, IPA ID: ${response.ipId}`);
+      
+      // Store the response data to show on confirmation page
+      localStorage.setItem('registration_response', JSON.stringify({
+        txHash: response.txHash,
+        ipId: response.ipId,
+        explorerUrl: `https://aeneid.explorer.story.foundation/ipa/${response.ipId}`
+      }));
+
+      // Navigate to confirmation page
       router.push("/register/confirmation");
-    }, 1000);
+    } catch (error) {
+      console.error("Error during registration:", error);
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -544,6 +679,24 @@ export default function RegisterIP() {
               formData={formData} 
               setFormData={setFormData} 
             />
+
+            {statusMessage && (
+              <div className="p-3 bg-[#1a1a1a] rounded-md text-sm text-gray-300 flex items-center">
+                <div className="animate-spin mr-2">
+                  <svg className="w-4 h-4 text-[#fa5f02]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </div>
+                {statusMessage}
+              </div>
+            )}
+
+            {errorMessage && (
+              <div className="p-3 bg-[#2a0000] border border-[#500] rounded-md text-sm text-[#ff5555]">
+                {errorMessage}
+              </div>
+            )}
 
             <div className="flex justify-center pt-4">
               <button 
