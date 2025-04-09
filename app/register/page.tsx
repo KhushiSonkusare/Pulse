@@ -15,7 +15,7 @@ import {
   SPGNFTContractAddress,
   account
 } from '../../utils';
-
+import mediaUrlHasher from '../../lib/mediaUrlHasher.jsx'; 
 
 interface FormData {
   title: string;
@@ -544,6 +544,8 @@ export default function RegisterIP() {
       // Generate thumbnail for the video
       // const thumbnailUrl = await generateThumbnail(formData.files[0]);
       const mediaUrl = await fileToBase64(formData.files[0]);
+      const hashedUrl = mediaUrlHasher(mediaUrl);
+      console.log(hashedUrl);
       const timestamp = Math.floor(Date.now() / 1000).toString();
       const thumbnailUrl = formData.coverImage.length > 0 ? await fileToBase64(formData.coverImage[0]) : "";
 
