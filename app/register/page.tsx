@@ -470,7 +470,7 @@ export default function RegisterIP() {
     if (formData.coverImage.length > 0) filledCount++;
     
     
-    setProgress((filledCount / 5) * 100);
+    setProgress((filledCount / 6) * 100);
   }
 }, [formData]);
 
