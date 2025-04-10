@@ -560,7 +560,7 @@ export default function RegisterIP() {
         createdAt: timestamp,
         creators: [
           {
-            name: account.address, // Using the account address as name for now
+            name: account.address,
             address: account.address,
             contributionPercent: 100,
           },
