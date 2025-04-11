@@ -15,12 +15,13 @@ import {
   SPGNFTContractAddress,
   account
 } from '../../utils';
-import mediaUrlHasher from '../../lib/mediaUrlHasher.jsx'; 
+import  DealParameters  from '@lighthouse-web3/sdk';
 
 interface FormData {
   title: string;
   description: string;
-  date: string;
+  releaseDate: string;
+  releaseTime : string;
   rights: string;
   coverImage: File[]; 
   files: File[];
@@ -140,9 +141,9 @@ function DatePickerField({ number, label, selectedDate, setSelectedDate, formDat
           setSelectedDate(date);
           if (date) {
             const formattedDate = date.toISOString().split("T")[0];
-            setFormData(prev => ({ ...prev, date: formattedDate }));
+            setFormData(prev => ({ ...prev, releaseDate: formattedDate }));
           } else {
-            setFormData(prev => ({ ...prev, date: "" }));
+            setFormData(prev => ({ ...prev, releaseDate: "" }));
           }
         }}
         customInput={<CustomInput />}
@@ -150,14 +151,14 @@ function DatePickerField({ number, label, selectedDate, setSelectedDate, formDat
         showMonthDropdown
         showYearDropdown
         dropdownMode="select"
-        popperClassName="custom-popper" // Add custom class for styling
-        popperPlacement="bottom-start" // Control placement
-        portalId="date-picker-portal" // Set a portal ID for rendering
+        popperClassName="custom-popper" 
+        popperPlacement="bottom-start" 
+        portalId="date-picker-portal" 
       />
       
-      {formData.date && (
+      {formData.releaseDate && (
         <div className="text-sm text-gray-300 mt-1">
-          Selected: {new Date(formData.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+          Selected: {new Date(formData.releaseDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
         </div>
       )}
     </div>
@@ -393,7 +394,8 @@ export default function RegisterIP() {
   const [formData, setFormData] = useState<FormData>({
     title: "",
     description: "",
-    date: "",
+    releaseDate: "",
+    releaseTime: "", 
     rights: "",
     coverImage: [], 
     files: [],
@@ -464,17 +466,17 @@ export default function RegisterIP() {
     let filledCount = 0;
     if (formData.title) filledCount++;
     if (formData.description) filledCount++;
-    if (formData.date) filledCount++;
+    if (formData.releaseDate) filledCount++;
+    if (formData.releaseTime) filledCount++;
     if (formData.rights) filledCount++;
     if (formData.files.length > 0) filledCount++;
     if (formData.coverImage.length > 0) filledCount++;
     
-    
-    setProgress((filledCount / 6) * 100);
+    setProgress((filledCount / 7) * 100); 
   }
 }, [formData]);
 
-  const isFormValid = formData.title && formData.description && formData.date && formData.rights && formData.coverImage.length > 0 && formData.files.length > 0; 
+const isFormValid = formData.title && formData.description && formData.releaseDate && formData.releaseTime && formData.rights && formData.coverImage.length > 0 && formData.files.length > 0;
 
   const handleClickOutside = (e: MouseEvent) => {
     if (isMobileMenuOpen && e.target instanceof HTMLElement) {
@@ -503,6 +505,22 @@ export default function RegisterIP() {
     });
   };
 
+  const uploadToLighthouse = async (file: File) => {
+    const apiKey = process.env.NEXT_PUBLIC_LIGHTHOUSE_STORAGE_KEY;
+  
+    if (!apiKey) {
+      throw new Error("Lighthouse API key is missing in environment variables.");
+    }
+  
+    // const formData = new FormData();
+    // formData.append('file', file);
+
+    const res = await lighthouse.upload([file], apiKey);
+    
+    const cid = res.data.Hash;
+    return `https://gateway.lighthouse.storage/ipfs/${cid}`;
+  };
+  
   // Function to get image dimensions
   const getImageDimensions = (file: File): Promise<{width: number, height: number}> => {
     return new Promise((resolve) => {
@@ -524,7 +542,7 @@ export default function RegisterIP() {
   };
 
   const handleSubmit = async () => {
-    const isFormValid = formData.title && formData.description && formData.date && formData.rights && formData.files.length > 0;
+    const isFormValid = formData.title && formData.description && formData.releaseDate && formData.releaseTime && formData.rights && formData.files.length > 0;
     if (!isFormValid) {
       alert("Please fill all required fields.");
       return;
@@ -540,13 +558,29 @@ export default function RegisterIP() {
       if (!LIGHTHOUSE_STORAGE_KEY) {
         throw new Error("LIGHTHOUSE_STORAGE_KEY is missing from environment variables.");
       }
+      if (formData.files.length === 0) {
+        setErrorMessage("No file selected");
+        setIsSubmitting(false);
+        return;
+      }
+      
+      const file = formData.files[0];
+      
+      console.log("Starting file upload to Lighthouse...");
+      console.log("File details:", {
+        name: file.name,
+        size: file.size,
+        type: file.type
+      });
 
-      // Generate thumbnail for the video
-      // const thumbnailUrl = await generateThumbnail(formData.files[0]);
-      const mediaUrl = await fileToBase64(formData.files[0]);
-      const hashedUrl = mediaUrlHasher(mediaUrl);
-      console.log(hashedUrl);
-      const timestamp = Math.floor(Date.now() / 1000).toString();
+      const uploadedUrl = await uploadToLighthouse(file);
+      console.log("Upload complete! CID:", uploadedUrl);
+      
+      const mediaUrl = uploadedUrl;
+
+      // Combine release date and time into a timestamp
+      const releaseDateTime = new Date(`${formData.releaseDate}T${formData.releaseTime}`);
+      const releaseDateTimestamp = Math.floor(releaseDateTime.getTime() / 1000).toString();
       const thumbnailUrl = formData.coverImage.length > 0 ? await fileToBase64(formData.coverImage[0]) : "";
 
       // Calculate hash for video content
@@ -557,7 +591,9 @@ export default function RegisterIP() {
       const ipMetadata = {
         title: formData.title,
         description: formData.description,
-        createdAt: timestamp,
+        releaseDate: formData.releaseDate,
+        releaseTime: formData.releaseTime,
+        releaseTimestamp: releaseDateTimestamp,
         creators: [
           {
             name: account.address,
@@ -570,6 +606,7 @@ export default function RegisterIP() {
         mediaUrl: mediaUrl,
         mediaHash: `0x${mediaHash}`,
         mediaType: formData.files[0].type,
+        rights: formData.rights,
       };
 
       // 2. Set up NFT Metadata
@@ -591,8 +628,12 @@ export default function RegisterIP() {
             value: formData.rights,
           },
           {
-            key: "Created",
-            value: formData.date,
+            key: "Release Date",
+            value: formData.releaseDate,
+          },
+          {
+            key: "Release Time",
+            value: formData.releaseTime,
           },
           {
             key: "Source",
@@ -777,7 +818,7 @@ export default function RegisterIP() {
             />
             <DatePickerField 
               number="3" 
-              label="Creation Date" 
+              label="Release Date" 
               selectedDate={selectedDate} 
               setSelectedDate={setSelectedDate} 
               formData={formData} 
@@ -785,6 +826,15 @@ export default function RegisterIP() {
             />
             <FormField 
               number="4" 
+              label="Release Time" 
+              placeholder="HH:MM" 
+              type="time"
+              formData={formData} 
+              setFormData={setFormData} 
+              field="releaseTime" 
+            />            
+            <FormField 
+              number="5" 
               label="Rights Management" 
               select 
               formData={formData} 
@@ -792,13 +842,13 @@ export default function RegisterIP() {
               field="rights" 
             />
             <CoverImageUploadField 
-              number="5" 
+              number="6" 
               label="Upload Cover Image" 
               formData={formData} 
               setFormData={setFormData} 
             />            
             <FileUploadField 
-              number="6" 
+              number="7" 
               label="Upload MP4 File" 
               formData={formData} 
               setFormData={setFormData} 
