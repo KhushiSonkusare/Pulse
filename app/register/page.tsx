@@ -470,7 +470,7 @@ export default function RegisterIP() {
     if (formData.coverImage.length > 0) filledCount++;
     
     
-    setProgress((filledCount / 5) * 100);
+    setProgress((filledCount / 6) * 100);
   }
 }, [formData]);
 
@@ -560,7 +560,7 @@ export default function RegisterIP() {
         createdAt: timestamp,
         creators: [
           {
-            name: account.address, // Using the account address as name for now
+            name: account.address,
             address: account.address,
             contributionPercent: 100,
           },
