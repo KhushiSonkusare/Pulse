@@ -1,11 +1,7 @@
----
-
 # 🚀 Pulse – Blockchain IP Registration & Rights Management Platform  
 
 > **Secure. Own. Monetize.**  
 > Empowering creators to register, protect, and monetize their intellectual property using blockchain and zero-knowledge encryption.
-
----
 
 ## 🎨 Overview
 
