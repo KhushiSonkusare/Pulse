@@ -14,16 +14,28 @@ export default function Confirmation() {
   });
   const [timestamp, setTimestamp] = useState("");
   const [showContent, setShowContent] = useState(false);
+  const [encryptionDetails, setEncryptionDetails] = useState({
+    requestId: "",
+    currentBlock: 0,
+    targetBlock: 0,
+    lighthouseUrl: ""
+  });
 
   const router = useRouter();
 
   useEffect(() => {
     // Get registration data from localStorage
     const storedData = localStorage.getItem('registration_response');
+
+    const encryptionData = localStorage.getItem('encryption_details');
     if (storedData) {
       const data = JSON.parse(storedData);
       setRegistrationData(data);
       
+      if (encryptionData) {
+        const encData = JSON.parse(encryptionData);
+        setEncryptionDetails(encData);
+      }
       // Store timestamp in state after client-side rendering
       setTimestamp(new Date().toLocaleString('en-US', {
         year: 'numeric',
@@ -102,6 +114,31 @@ export default function Confirmation() {
                 <span className="font-mono text-sm">{timestamp}</span>
               </div>
             </div>
+
+            {/* Encryption Details with Animation */}
+            {encryptionDetails.requestId && (
+              <div className={`bg-[#252525] rounded-lg p-4 text-left mt-4 transition-all duration-700 delay-600 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+                <h3 className="text-sm font-medium text-gray-300 mb-2">Encryption Details</h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Request ID</span>
+                    <span className="font-mono text-sm truncate max-w-[180px]">{encryptionDetails.requestId}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Current Block</span>
+                    <span className="font-mono text-sm">{encryptionDetails.currentBlock}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Unlock at Block</span>
+                    <span className="font-mono text-sm">{encryptionDetails.targetBlock}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Blocks Remaining</span>
+                    <span className="font-mono text-sm">{Number(encryptionDetails.targetBlock) - Number(encryptionDetails.currentBlock)}</span>
+                  </div>
+                </div>
+              </div>
+            )}
             
             {/* Action buttons with Animation */}
             <div className={`pt-4 flex flex-col gap-3 transition-all duration-700 delay-600 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>

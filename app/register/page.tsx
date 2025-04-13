@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, forwardRef } from "react";
+import { CONTRACT_ABI } from "../../contract/contractDetails";
 import { useRouter } from "next/navigation";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -9,13 +10,16 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { createHash } from 'crypto';
+
 import lighthouse from '@lighthouse-web3/sdk';
 import { 
   client, 
   SPGNFTContractAddress,
   account
 } from '../../utils';
-import  DealParameters  from '@lighthouse-web3/sdk';
+import { ethers, BrowserProvider, Contract, JsonRpcProvider } from "ethers";
+import { Blocklock, encodeCiphertextToSolidity } from "blocklock-js";
+import { AbiCoder } from "ethers";
 
 interface FormData {
   title: string;
@@ -390,6 +394,10 @@ export default function RegisterIP() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [encryptedData, setEncryptedData] = useState<any>(null);
+  const [decryptedUrl, setDecryptedUrl] = useState<string | null>(null);
+  const [currentBlock, setCurrentBlock] = useState<number>(0);
 
   const [formData, setFormData] = useState<FormData>({
     title: "",
@@ -541,6 +549,100 @@ const isFormValid = formData.title && formData.description && formData.releaseDa
     return "https://via.placeholder.com/400x300";
   };
 
+  const encryptAndStoreURL = async (file: File): Promise<{ lighthouseUrl: string, requestId: bigint , blockHeight: bigint }> => {
+    setLoading(true);
+    setStatusMessage("Uploading to Lighthouse...");
+    
+    try {
+      // First upload the file to Lighthouse
+      setStatusMessage("Uploading file to Lighthouse storage...");
+      const lighthouseUrl = await uploadToLighthouse(file);
+      console.log("File uploaded to Lighthouse:", lighthouseUrl);
+      setStatusMessage("Encrypting URL with Blocklock...");
+      
+      // Check if MetaMask is installed
+      if (!window.ethereum) {
+        throw new Error("Please install MetaMask!");
+      }
+      
+      // Request account access
+      const accounts = await window.ethereum.request({
+        method: 'eth_requestAccounts'
+      });
+      
+      // Create BrowserProvider and Signer
+      const provider = new BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      
+      // Create Contract Instance
+      const contract = new Contract(
+        "0xcF04a63AedF2B4d83f3fFA40b523694df0e8F6C9", // Update with your contract address
+        CONTRACT_ABI,
+        signer
+      );
+      
+      // Calculate block height for 2 minutes from now
+      // Assuming average block time of 12 seconds, 10 blocks ≈ 2 minutes
+      const currentBlock = await provider.getBlockNumber();
+      const blockHeight = BigInt(currentBlock + 10);
+      console.log("Current block:", currentBlock);
+      console.log("Target unlock block:", blockHeight);
+      
+
+      setStatusMessage("Calculating unlock time and encrypting your content...");
+
+      // Encode the Lighthouse URL as bytes
+      const msgBytes = AbiCoder.defaultAbiCoder().encode(["string"], [lighthouseUrl]);
+      const encodedMessage = ethers.getBytes(msgBytes);
+      
+      // Encrypt the encoded URL
+      const blocklockjs = new Blocklock(
+        accounts,
+        "0xfF66908E1d7d23ff62791505b2eC120128918F44" 
+      );
+      
+      const ciphertext = blocklockjs.encrypt(encodedMessage, blockHeight);
+      console.log("URL encrypted successfully");
+      setStatusMessage("Content encrypted! Storing reference on blockchain...");
+      
+      const tx = await contract.createTimelockRequest(
+        blockHeight,
+        encodeCiphertextToSolidity(ciphertext)
+      );
+      
+      const receipt = await tx.wait(1);
+      console.log("Transaction receipt:", receipt);
+      
+      if (!receipt) {
+        throw new Error("Transaction has not been mined");
+      }
+      
+      const requestId = await contract.userRequestId(accounts[0]);
+      console.log("Encryption complete! Request ID:", requestId);
+      console.log("URL will decrypt at block:", blockHeight);
+      
+
+      setStatusMessage(`Success! Your content will decrypt at block ${blockHeight} (approx. ${Math.round((Number(blockHeight) - currentBlock) * 12 / 60)} minutes)`);
+      
+      setEncryptedData({
+        requestId,
+        blockHeight,
+        lighthouseUrl, 
+        status: "Encrypted URL stored on-chain"
+      });
+      
+      // Return the lighthouse URL and request ID
+      return { lighthouseUrl, requestId, blockHeight };
+      
+    } catch (error) {
+      console.error("Error during encryption:", error);
+      setStatusMessage("Error: " + (error as Error).message);
+      throw error; 
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async () => {
     const isFormValid = formData.title && formData.description && formData.releaseDate && formData.releaseTime && formData.rights && formData.files.length > 0;
     if (!isFormValid) {
@@ -572,11 +674,13 @@ const isFormValid = formData.title && formData.description && formData.releaseDa
         size: file.size,
         type: file.type
       });
-
-      const uploadedUrl = await uploadToLighthouse(file);
-      console.log("Upload complete! CID:", uploadedUrl);
+      setStatusMessage("Preparing to encrypt your content...");
+      const { lighthouseUrl, requestId, blockHeight } = await encryptAndStoreURL(file);
+      console.log("Upload and encryption complete! Request ID:", requestId);
       
-      const mediaUrl = uploadedUrl;
+      const mediaUrl = lighthouseUrl;
+
+
 
       // Combine release date and time into a timestamp
       const releaseDateTime = new Date(`${formData.releaseDate}T${formData.releaseTime}`);
@@ -673,6 +777,16 @@ const isFormValid = formData.title && formData.description && formData.releaseDa
       });
 
       console.log(`Root IPA created at transaction hash ${response.txHash}, IPA ID: ${response.ipId}`);
+
+      const provider = new JsonRpcProvider("https://api.calibration.node.glif.io/rpc/v1");
+      const currentBlock = await provider.getBlockNumber();
+      
+      localStorage.setItem('encryption_details', JSON.stringify({
+        requestId: requestId.toString(),
+        currentBlock: currentBlock,
+        targetBlock: blockHeight.toString(),
+        lighthouseUrl: lighthouseUrl
+      }));
       
       // Store the response data to show on confirmation page
       localStorage.setItem('registration_response', JSON.stringify({
