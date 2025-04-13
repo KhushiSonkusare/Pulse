@@ -794,7 +794,29 @@ const isFormValid = formData.title && formData.description && formData.releaseDa
         ipId: response.ipId,
         explorerUrl: `https://aeneid.explorer.story.foundation/ipa/${response.ipId}`
       }));
+      
+      const ipRecord = {
+        id: Number(response.ipId),
+        title: formData.title,
+        description: formData.description,
+        image: thumbnailUrl,
+        mediaUrl: lighthouseUrl,
+        requestId: requestId.toString(),
+        currentBlock: currentBlock,
+        targetBlock: blockHeight.toString(),
+        releaseDate: formData.releaseDate,
+        releaseTime: formData.releaseTime,
+        type: formData.files[0].type,
+        explorerUrl: `https://aeneid.explorer.story.foundation/ipa/${response.ipId}`
+      };
 
+      // Get current IPs or initialize empty array
+      const currentIPs = JSON.parse(localStorage.getItem('registered_ips') || '[]');
+      // Add new IP to array
+      currentIPs.push(ipRecord);
+      // Save updated array
+      localStorage.setItem('registered_ips', JSON.stringify(currentIPs));
+      
       // Navigate to confirmation page
       router.push("/register/confirmation");
     } catch (error) {

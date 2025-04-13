@@ -1,5 +1,5 @@
 "use client";
-
+import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 
 import {
@@ -38,13 +38,37 @@ function SidebarItem({ icon, label, active = false }: SidebarItemProps) {
   );
 }
 
+export interface IPRecord {
+  id: number;
+  title: string;
+  description: string;
+  image: string;
+  mediaUrl: string;
+  requestId: string;
+  currentBlock: number;
+  targetBlock: string;
+  releaseDate: string;
+  releaseTime: string;
+  type: string;
+  explorerUrl: string;
+}
+
 export default function Dashboard() {
   const [mounted, setMounted] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  const [registeredIPs, setRegisteredIPs] = useState<IPRecord[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
+    // Load registered IPs from localStorage
+    if (typeof window !== 'undefined') {
+      // For debugging: see what's in localStorage
+      console.log("Getting IPs from localStorage");
+      const savedIPs = JSON.parse(localStorage.getItem('registered_ips') || '[]');
+      console.log("Saved IPs:", savedIPs);
+      setRegisteredIPs(savedIPs);
+    }
   }, []);
 
   // Close sidebar when clicking outside
@@ -62,6 +86,10 @@ export default function Dashboard() {
     };
   }, [sidebarOpen]);
 
+  const navigateToCountdown = (ipId: number) => {
+    console.log("Navigating to IP:", ipId);
+    router.push(`/countdown/${ipId}`);
+  };
 
   return (
     <div className="flex flex-col lg:flex-row bg-black text-white min-h-screen">
@@ -171,10 +199,52 @@ export default function Dashboard() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-10">
-          <StatCard color="green" number="25" label="Registered IP assets" />
+          <StatCard 
+            color="green" 
+            number={registeredIPs.length} 
+            label="Registered IP assets" 
+          />
           <StatCard color="purple" number="3" label="Creator Credentials" />
           <StatCard color="blue" number="1254" label="Profile Views" />
         </div>
+
+        {/* Registered IPs*/}
+        <div className="mb-10">
+        <h2 className="text-2xl font-semibold mb-4">Your Registered IPs</h2>
+        {registeredIPs.length === 0 ? (
+          <p className="text-gray-500">No registered IPs yet. Create your first one!</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {registeredIPs.map((ip, index) => (
+              <div 
+                key={index} 
+                className="bg-[#1a1a1a] rounded-lg p-4 cursor-pointer hover:bg-[#2a2a2a] transition"
+                onClick={() => navigateToCountdown(ip.id)}
+              >
+                <div className="w-full h-40 rounded overflow-hidden mb-3">
+                  {ip.image ? (
+                    <img src={ip.image} alt={ip.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-[#333] flex items-center justify-center text-gray-500">
+                      No Image
+                    </div>
+                  )}
+                </div>
+                <h3 className="font-medium text-lg">{ip.title}</h3>
+                <p className="text-sm text-gray-500 mb-2 truncate">{ip.description}</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-[#fa5f02]">
+                    Release: {new Date(`${ip.releaseDate}T${ip.releaseTime}`).toLocaleDateString()}
+                  </span>
+                  <span className="text-xs bg-[#333] px-2 py-1 rounded">
+                    {ip.type.split('/')[0]}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
         {/* Creator Credentials Section */}
         <h2 className="text-2xl font-semibold mb-4">Creator Credentials</h2>

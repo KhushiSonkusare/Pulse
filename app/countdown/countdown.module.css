@@ -405,3 +405,357 @@
       gap: 15px; /* Reduced spacing for mobile screens */
     }
   }
+ /* Add these styles to your countdown.module.css file */
+
+/* Button styling */
+.buttonContainer {
+  display: flex;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.storyButton, .dashboardButton {
+  padding: 12px 24px;
+  border-radius: 5px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  border: none;
+  display: inline-block;
+}
+
+.storyButton {
+  background-color: #e83e8c;
+  color: white;
+}
+
+.storyButton:hover {
+  background-color: #d33a7e;
+  transform: translateY(-2px);
+}
+
+.dashboardButton {
+  background-color: #343a40;
+  color: white;
+}
+
+.dashboardButton:hover {
+  background-color: #23272b;
+  transform: translateY(-2px);
+}
+
+/* Fix timer/countdown animation */
+.number {
+  font-size: 64px;
+  font-weight: 700;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  width: 100px;
+  height: 100px;
+  perspective: 200px;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.5s ease;
+}
+
+.flipAnimation {
+  animation: flip 0.5s ease-in-out;
+}
+
+@keyframes flip {
+  0% {
+    transform: rotateX(0);
+  }
+  50% {
+    transform: rotateX(90deg);
+  }
+  100% {
+    transform: rotateX(0);
+  }
+}
+
+.timeUnit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 15px;
+}
+
+.numberWrapper {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  padding: 5px;
+  margin-bottom: 8px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+/* Block time estimate styling */
+.blockTimeEstimate {
+  margin-top: 15px;
+  font-style: italic;
+  color: #e83e8c;
+  font-weight: 600;
+}
+
+/* Media container styling updates */
+.mediaContainer {
+  width: 100%;
+  max-width: 800px;
+  margin: 30px auto;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.mediaPlayer {
+  width: 100%;
+  display: block;
+}
+
+.mediaImage {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.mediaInfo {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.mediaInfo h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.mediaInfo p {
+  font-size: 16px;
+  color: #666;
+}
+/* Add these styles to your countdown.module.css file */
+
+/* Button styling */
+.buttonContainer {
+  display: flex;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.storyButton, .dashboardButton {
+  padding: 12px 24px;
+  border-radius: 5px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  border: none;
+  display: inline-block;
+}
+
+.storyButton {
+  background-color: #ff8c00; /* Changed from pink to orange */
+  color: white;
+}
+
+.storyButton:hover {
+  background-color: #e07b00; /* Darker orange on hover */
+  transform: translateY(-2px);
+}
+
+.dashboardButton {
+  background-color: #343a40;
+  color: white;
+}
+
+.dashboardButton:hover {
+  background-color: #23272b;
+  transform: translateY(-2px);
+}
+
+/* Fix timer/countdown animation */
+.number {
+  font-size: 64px;
+  font-weight: 700;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  width: 100px;
+  height: 100px;
+  perspective: 200px;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.5s ease;
+}
+
+.flipAnimation {
+  animation: flip 0.5s ease-in-out;
+}
+
+@keyframes flip {
+  0% {
+    transform: rotateX(0);
+  }
+  50% {
+    transform: rotateX(90deg);
+  }
+  100% {
+    transform: rotateX(0);
+  }
+}
+
+.timeUnit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 15px;
+}
+
+.numberWrapper {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  padding: 5px;
+  margin-bottom: 8px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+/* Block info styling */
+.blockInfo {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  color: #fff;
+}
+
+.blockInfo p {
+  margin: 5px 0;
+}
+
+.blockNote {
+  margin-top: 10px;
+  font-style: italic;
+  color: #ff8c00; /* Changed from pink to orange */
+  font-weight: 600;
+}
+
+/* Pulsing dot colors */
+.dot {
+  width: 10px;
+  height: 10px;
+  background-color: #ff8c00; /* Changed from pink to orange */
+  border-radius: 50%;
+  position: relative;
+  animation: pulse 2s infinite;
+}
+
+.ripple {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: rgba(255, 140, 0, 0.4); /* Changed from pink to orange with transparency */
+  z-index: -1;
+  animation: ripple 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* Media container styling updates */
+.mediaContainer {
+  width: 100%;
+  max-width: 800px;
+  margin: 30px auto;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.mediaPlayer {
+  width: 100%;
+  display: block;
+  background-color: #000;
+}
+
+.mediaImage {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.mediaInfo {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.mediaInfo h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.mediaInfo p {
+  font-size: 16px;
+  color: #666;
+}
+
+/* New Music text color */
+.newMusic {
+  color: #ff8c00; /* Changed from pink to orange */
+  display: block;
+  font-size: 1.5em;
+  margin-bottom: 5px;
+}
+
+/* Release text styling */
+.releaseText {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 24px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
