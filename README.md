@@ -5,7 +5,7 @@
 
 ## 🎨 Overview
 
-**Pulse** is a next-generation platform designed for creators—musicians, filmmakers, designers, writers, and all creative minds—to **securely register and protect their intellectual property (IP)** using blockchain technology. With built-in **encryption**, **ZKP (Zero-Knowledge Proofs)**, and **smart rights management**, Pulse enables creators to **retain control, collaborate seamlessly, and even sell IP rights** *before* public release.
+**Pulse** is a next-generation platform designed for creators—musicians, filmmakers, designers, writers, and all creative minds—to **securely register and protect their intellectual property (IP)** using blockchain technology. With built-in **encryption**, and **smart rights management**, Pulse enables creators to **retain control, collaborate seamlessly, and even sell IP rights** *before* public release.
 
 Whether it's a **music track**, **video**, or **script**, Pulse helps you **lock your content**, **prove ownership**, and **sell your rights**—all in one powerful, user-friendly platform.
 
