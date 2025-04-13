@@ -57,7 +57,6 @@ Whether it's a **music track**, **video**, or **script**, Pulse helps you **lock
 | **Tailwind CSS**| Utility-first CSS framework            |
 | **Lucide React** | Icon system for clean UI             |
 | **Blockchain** | Backend for immutable IP registration |
-| **ZKP**        | Enhanced privacy and secure ownership proofs |
 | **React Datepicker** | For selecting IP creation dates |
 | **Encryption** | To ensure content security             |
 
@@ -68,16 +67,47 @@ Whether it's a **music track**, **video**, or **script**, Pulse helps you **lock
 ```bash
 Pulse/
 │
-├── pages/               # Application routes
-│   ├── index.js         # Dashboard
-│   ├── register.js      # IP registration form
-│   ├── credentials.js   # Creator credentials
+├── app/                         # Next.js App Router structure
+│   ├── countdown/               # Countdown page
+│   │   ├── [id]/                # Dynamic route for countdown
+│   │   └── countdown.module.css
+│   │
+│   ├── credentials/            # Creator credentials page
+│   │   ├── loading.tsx
+│   │   └── page.tsx
+│   │
+│   ├── encrypt-test/           # ZK / encryption test route
+│   │   └── page.tsx
+│   │
+│   ├── images/                 # Asset tier badge icons
+│   │   ├── copper.png
+│   │   ├── gold.png
+│   │   ├── silver.png
+│   │   ├── stylus.png
+│   │   └── record.png
+│   │
+│   ├── register/               # IP registration flow
+│   │   ├── confirmation/       # Post-registration confirmation page
+│   │   │   ├── loading.tsx
+│   │   │   └── page.tsx
+│   │   ├── Register.tsx        # Main registration form
+│   │   ├── index.tsx
+│   │   └── page.tsx
+│   │
+│   ├── globals.css             # Global styles
+│   ├── layout.tsx              # Root layout
+│   ├── loading.tsx             # App loading fallback
+│   ├── page.tsx                # Landing/dashboard
+│   ├── providers.tsx           # App-wide providers
+│   └── ReactQueryProvider.tsx  # React Query setup
 │
-├── components/          # Reusable components
-├── public/              # Static assets
+├── components/                 # Reusable components (buttons, inputs, cards, etc.)
+├── contract/                   # Smart contract interactions
+├── hooks/                      # Custom React hooks
 ├── .gitignore
 ├── package.json
 └── README.md
+
 ```
 
 ---
@@ -114,7 +144,6 @@ On `register.js`, users will:
 3. Select the **Creation Date**
 4. Define **Rights** (Exclusive, Non-Exclusive, Limited)
 5. **Upload an MP4** (Encrypted & stored)
-6. Generate ZKP & register on blockchain  
 Includes:
 - **Input validation**
 - **Upload progress bar**
@@ -140,20 +169,9 @@ Whether you’re an indie artist or a full creative agency—Pulse lets you **ow
 
 Have suggestions? PRs are welcome!
 
----
-
-## 📜 License
-
-This project is licensed under the **MIT License** – see the [LICENSE](./LICENSE) file for details.
-
----
-
 ## 💬 Let's Connect
 
 Follow our journey as we redefine digital ownership and protect creators worldwide.
 
 > _“Your ideas. Your creation. Your rights. On-chain.”_
 
----
-
-Let me know if you want a version with visuals like badges, logos, or markdown-enhanced diagrams!
