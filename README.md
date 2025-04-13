@@ -1,5 +1,3 @@
-Here's a polished and professional README that highlights the **Pulse** project as a next-generation platform for IP protection, collaboration, and monetization on the blockchain:
-
 ---
 
 # 🚀 Pulse – Blockchain IP Registration & Rights Management Platform  
