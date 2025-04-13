@@ -91,8 +91,10 @@ const CountdownPage = ({ params }: Props) => {
           initializeTimeFromBlocks(blockNumber, targetBlock);
         }
         
-
-        
+        // If target block reached, decrypt content
+        if (blockNumber >= targetBlock && targetBlock > 0) {
+          decryptContent();
+        }
       } catch (err) {
         console.error("Error checking block height:", err);
       }
@@ -114,7 +116,7 @@ const CountdownPage = ({ params }: Props) => {
   // Function to initialize the time calculation from blocks
   const initializeTimeFromBlocks = (currentBlock: number, targetBlock: number) => {
     const blocksRemaining = Math.max(0, targetBlock - currentBlock);
-    const totalSeconds = (blocksRemaining * 30); // 30 seconds per block
+    const totalSeconds = blocksRemaining * 30; // 30 seconds per block
     
     // Store the total seconds for the countdown
     secondsRemainingRef.current = totalSeconds;
@@ -137,7 +139,7 @@ const CountdownPage = ({ params }: Props) => {
         updateTimeDisplay(secondsRemainingRef.current);
         
         // If we've reached zero, clear the interval and trigger decryption
-        if ((secondsRemainingRef.current <= 0) && (currentBlock >= targetBlock && targetBlock > 0)) {
+        if (secondsRemainingRef.current <= 0) {
           if (countdownIntervalRef.current) {
             clearInterval(countdownIntervalRef.current);
           }
@@ -355,7 +357,9 @@ const CountdownPage = ({ params }: Props) => {
                 <p>Current Block: {currentBlock}</p>
                 <p>Target Block: {targetBlock}</p>
                 <p>Blocks Remaining: {Math.max(0, targetBlock - currentBlock)}</p>
-               
+                <p className={styles.blockNote}>
+                  Time based on block height (30 seconds per block)
+                </p>
               </div>
 
               <div className={styles.pulsingDot}>

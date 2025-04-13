@@ -584,7 +584,7 @@ const isFormValid = formData.title && formData.description && formData.releaseDa
       // Calculate block height for 2 minutes from now
       // Assuming average block time of 12 seconds, 10 blocks ≈ 2 minutes
       const currentBlock = await provider.getBlockNumber();
-      const blockHeight = BigInt(currentBlock + 10);
+      const blockHeight = BigInt(currentBlock + 5);
       console.log("Current block:", currentBlock);
       console.log("Target unlock block:", blockHeight);
       
